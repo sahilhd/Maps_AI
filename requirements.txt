@@ -1,0 +1,23 @@
+# Core web framework
+Flask==3.1.1
+
+# Environment variable management
+python-dotenv==1.0.0
+
+# HTTP requests
+requests==2.32.4
+
+# Google Maps API client
+googlemaps==4.10.0
+
+# NVIDIA API client (using requests for now)
+# openai==1.90.0  # Commented out - replaced with NVIDIA models
+
+# Data validation and serialization
+pydantic==2.11.7
+
+# Polyline encoding/decoding for Google Maps
+polyline==2.0.2
+
+# Type hints (usually included with Python 3.9+)
+typing-extensions==4.14.0 

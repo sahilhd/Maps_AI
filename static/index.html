@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapsAI - NVIDIA Powered Navigation Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT2iwevjT2lkPtBocCLOw6W-hNsgb4fdE&libraries=geometry"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/about-nvidia/logo-and-brand/01-nvidia-logo-vert-500x200-2c50-d.png" alt="NVIDIA" height="40">
+                <h1>MapsAI</h1>
+            </div>
+            <p class="subtitle">Powered by NVIDIA AI • Intelligent Route Planning</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Chat Interface -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>🤖 AI Navigation Assistant</h3>
+                    <div class="status" id="status">Ready</div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <strong>🎯 Welcome to MapsAI!</strong><br>
+                            I'm your AI navigation assistant powered by NVIDIA. Ask me for:
+                            <ul>
+                                <li>🌄 <strong>Scenic routes</strong> - "scenic route from SF to Oakland"</li>
+                                <li>🏃 <strong>Fitness routes</strong> - "30 minute walk in downtown"</li>
+                                <li>🚗 <strong>Commute planning</strong> - "fastest route to work"</li>
+                                <li>🎯 <strong>Event navigation</strong> - "route to concert venue"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask for a route... (e.g., 'scenic route from San Francisco to Oakland')" />
+                    <button id="sendButton">
+                        <span id="sendIcon">🚀</span>
+                        <span id="sendText">Send</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <div class="map-header">
+                    <h3>🗺️ Interactive Route Map</h3>
+                    <div class="map-info" id="mapInfo">Enter a route request to see the map</div>
+                </div>
+                <div id="map" class="map"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🔥 Built with NVIDIA AI Models • 🗺️ Google Maps API • ⚡ Real-time Route Planning</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html> 

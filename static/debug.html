@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - MapsAI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a3a;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-button {
+            background: #76b900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .result {
+            background: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        #chatInput {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #76b900;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 MapsAI Debug Page</h1>
+        
+        <h2>1. Test API Connection</h2>
+        <button class="test-button" onclick="testAPI()">Test API</button>
+        <div id="apiResult" class="result">Click test button to check API...</div>
+        
+        <h2>2. Test Chat Input</h2>
+        <input type="text" id="chatInput" placeholder="Enter a test message..." value="scenic route from SF to Oakland">
+        <button class="test-button" onclick="testChat()">Send Test Message</button>
+        <div id="chatResult" class="result">Enter message and click send...</div>
+        
+        <h2>3. Test Console Output</h2>
+        <button class="test-button" onclick="testConsole()">Test Console</button>
+        <div id="consoleResult" class="result">Check browser console (F12) for messages...</div>
+    </div>
+
+    <script>
+        console.log('🚀 Debug page loaded successfully!');
+        
+        async function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.textContent = 'Testing API...';
+            
+            try {
+                const response = await fetch('/api/route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: 'test route from San Francisco to Oakland' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent = '✅ API Working!\n' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.textContent = '❌ API Error: ' + response.status + ' - ' + response.statusText;
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Network Error: ' + error.message;
+            }
+        }
+        
+        async function testChat() {
+            const input = document.getElementById('chatInput');
+            const resultDiv = document.getElementById('chatResult');
+            const message = input.value.trim();
+            
+            if (!message) {
+                resultDiv.textContent = '❌ Please enter a message';
+                return;
+            }
+            
+            resultDiv.textContent = 'Sending: ' + message + '...';
+            
+            try {
+                const response = await fetch('/api/route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: message })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.textContent = '✅ Message sent successfully!\n' +
+                        'Intent: ' + data.intent.intent_type + '\n' +
+                        'From: ' + data.intent.origin + '\n' +
+                        'To: ' + data.intent.destination + '\n' +
+                        'Waypoints: ' + data.waypoints.waypoints.length;
+                } else {
+                    resultDiv.textContent = '❌ Failed to send message: ' + response.status;
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Error sending message: ' + error.message;
+            }
+        }
+        
+        function testConsole() {
+            console.log('🔍 Console test - this should appear in browser console');
+            console.log('📍 Current URL:', window.location.href);
+            console.log('🌐 User Agent:', navigator.userAgent);
+            document.getElementById('consoleResult').textContent = 
+                '✅ Console test complete - check browser console (F12)';
+        }
+        
+        // Test when page loads
+        window.addEventListener('load', function() {
+            console.log('🎯 Debug page fully loaded');
+            testConsole();
+        });
+    </script>
+</body>
+</html> 
