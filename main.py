@@ -2,11 +2,15 @@ from flask import Flask, request, jsonify, render_template_string, send_from_dir
 import logging
 import traceback
 import os
+from dotenv import load_dotenv
 from starter import NVIDIAIntentParser
 from scenic_agent import ScenicAgent
 from fitness_agent import FitnessAgent
 from fallback_agent import FallbackAgent
 from polyline_agent import PolylineAgent
+
+# Load environment variables
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -73,13 +77,21 @@ def health_check():
 
 @app.route('/', methods=['GET'])
 def home():
-    """Serve the main webapp interface"""
+    """Serve the main webapp interface with secure API key injection"""
     try:
         file_path = os.path.join(app.static_folder, 'index.html')
         logger.info(f"Attempting to serve webapp from: {file_path}")
+        
+        # Get Google Maps API key from environment
+        google_api_key = os.getenv('GOOGLE_MAPS_API_KEY', '')
+        if not google_api_key:
+            logger.warning("GOOGLE_MAPS_API_KEY not found in environment variables")
+        
         with open(file_path, 'r') as f:
             content = f.read()
-            logger.info("Successfully loaded webapp HTML")
+            # Securely inject the API key into the template
+            content = content.replace('{{GOOGLE_MAPS_API_KEY}}', google_api_key)
+            logger.info("Successfully loaded webapp HTML with API key injection")
             return content
     except FileNotFoundError as e:
         logger.error(f"Webapp file not found: {e}")
