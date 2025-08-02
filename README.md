@@ -1,4 +1,4 @@
-# MapsAI
+# MapsAI - 1st PLACE NVIDIA AI AGENT HACKATHON WIN
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
 
 
