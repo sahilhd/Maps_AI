@@ -1,7 +1,7 @@
-# Navi
+# MapsAI
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
 
-# Navi
+
 
 A next-generation, AI-powered navigation app that transforms your natural language prompts into hyper-personalized routes. Whether you’re craving a scenic drive, a calorie-burning stroll, or a foodie adventure, Navi has you covered.
 
