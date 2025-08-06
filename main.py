@@ -124,6 +124,10 @@ def debug():
         return jsonify({"error": "Debug page not found"}), 404
 
 if __name__ == '__main__':
-    logger.info("Starting Flask application on port 8000...")
-    print("🚀 Starting MapsAI - NVIDIA Powered Navigation API on port 8000...")
-    app.run(debug=False, host='127.0.0.1', port=8000)
+    # Railway provides PORT environment variable
+    port = int(os.getenv('PORT', '8000'))
+    host = os.getenv('FLASK_HOST', '0.0.0.0')  # Railway requires 0.0.0.0
+    
+    logger.info(f"Starting Flask application on {host}:{port}...")
+    print(f"🚀 Starting MapsAI - NVIDIA Powered Navigation API on {host}:{port}...")
+    app.run(debug=False, host=host, port=port)
