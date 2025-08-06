@@ -31,7 +31,7 @@ class ScenicAgent:
         points: List[Dict[str, Any]] = []
 
         # a) Origin
-        orig = self._geocode(intent.origin)
+        orig = self._geocode(intent.origin, intent.location_hint)
         points.append({"name": intent.origin, "lat": orig["lat"], "lng": orig["lng"]})
 
         # b) Stops handling; if no destination and stops exist, last stop becomes destination
@@ -44,7 +44,7 @@ class ScenicAgent:
                 dest_point = {"name": g.get("name", last["name"]), "lat": g["latitude"], "lng": g["longitude"]}
             else:
                 addr = last.get("address") or last["name"]
-                loc  = self._geocode(addr)
+                loc  = self._geocode(addr, intent.location_hint)
                 dest_point = {"name": last["name"], "lat": loc["lat"], "lng": loc["lng"]}
 
         # c) Intermediate stops
@@ -54,7 +54,7 @@ class ScenicAgent:
                 points.append({"name": g.get("name", stop["name"]), "lat": g["latitude"], "lng": g["longitude"]})
             else:
                 addr = stop.get("address") or stop["name"]
-                loc  = self._geocode(addr)
+                loc  = self._geocode(addr, intent.location_hint)
                 points.append({"name": stop["name"], "lat": loc["lat"], "lng": loc["lng"]})
 
         # d) Destination
@@ -66,7 +66,7 @@ class ScenicAgent:
                 if intent.location_hint and intent.location_hint.city
                 else intent.origin
             )
-            loc = self._geocode(dest_str)
+            loc = self._geocode(dest_str, intent.location_hint)
             points.append({"name": dest_str, "lat": loc["lat"], "lng": loc["lng"]})
 
         # 2. Build ordered waypoints: start with origin
@@ -81,10 +81,23 @@ class ScenicAgent:
 
         return ScenicRouteResponse(waypoints=waypoints)
 
-    def _geocode(self, address: str) -> Dict[str, float]:
+    def _geocode(self, address: str, location_hint=None) -> Dict[str, float]:
+        # Try direct geocoding first
         res = self.client.geocode(address)
+        
+        # If direct geocoding fails and we have location context, try with context
+        if not res and location_hint and location_hint.city:
+            enhanced_query = f"{address}, {location_hint.city}"
+            if location_hint.region:
+                enhanced_query += f", {location_hint.region}"
+            if location_hint.country:
+                enhanced_query += f", {location_hint.country}"
+            
+            print(f"Retrying geocoding with context: '{enhanced_query}'")
+            res = self.client.geocode(enhanced_query)
+        
         if not res:
-            raise RuntimeError(f"Geocode failed for '{address}'")
+            raise RuntimeError(f"Geocode failed for '{address}' even with location context")
         return res[0]["geometry"]["location"]
 
     def _best_scenic_segment(

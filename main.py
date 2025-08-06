@@ -51,10 +51,10 @@ def get_route():
             fitnessAgent = FitnessAgent()
             resp = fitnessAgent.get_fitness_route(intent)
         else:
-            # For Event, Commute, and Other intents, use Scenic Agent for waypoints format
-            logger.info(f"Using Scenic Agent for {intent.intent_type} intent (waypoints format)")
-            scenicAgent = ScenicAgent()
-            resp = scenicAgent.get_scenic_route(intent)
+            # For Event, Commute, and Other intents, use Fallback Agent
+            logger.info(f"Using Fallback Agent for {intent.intent_type} intent")
+            fallbackAgent = FallbackAgent()
+            resp = fallbackAgent.get_waypoints(intent)
 
         logger.info("Preparing response...")
         response = {

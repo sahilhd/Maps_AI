@@ -30,10 +30,24 @@ class FallbackAgent:
             print("⚠️  WARNING: NVIDIA_API_KEY not found, using mock mode")
         self.nvidia = NVIDIAAgent(api_key=nvidia_api_key)
 
-    def _geocode_name(self, place_name: str) -> Dict[str, float]:
+    def _geocode_name(self, place_name: str, location_hint=None) -> Dict[str, float]:
+        # Try direct geocoding first
         resp = self.gmaps.geocode(place_name)
+        
+        # If direct geocoding fails and we have location context, try with context
+        if not resp and location_hint and location_hint.city:
+            enhanced_query = f"{place_name}, {location_hint.city}"
+            if location_hint.region:
+                enhanced_query += f", {location_hint.region}"
+            if location_hint.country:
+                enhanced_query += f", {location_hint.country}"
+            
+            print(f"Retrying geocoding with context: '{enhanced_query}'")
+            resp = self.gmaps.geocode(enhanced_query)
+        
         if not resp:
-            raise RuntimeError(f"Geocoding failed for '{place_name}'")
+            raise RuntimeError(f"Geocoding failed for '{place_name}' even with location context")
+        
         loc = resp[0]["geometry"]["location"]
         return {"lat": loc["lat"], "lng": loc["lng"]}
 
@@ -56,7 +70,7 @@ class FallbackAgent:
         # 4) Geocode any placeholder coordinates
         for wp in gpt_wpts:
             if not isinstance(wp.get("lat"), (int, float)) or not isinstance(wp.get("lng"), (int, float)):
-                coords = self._geocode_name(wp["name"])
+                coords = self._geocode_name(wp["name"], intent.location_hint)
                 wp["lat"], wp["lng"] = coords["lat"], coords["lng"]
 
         # 5) Merge without duplicates, preserving order:

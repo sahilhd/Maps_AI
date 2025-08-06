@@ -36,10 +36,23 @@ class FitnessAgent:
             print("⚠️  WARNING: NVIDIA_API_KEY not found, using mock mode")
         self.nvidia = NVIDIAAgent(api_key=nvidia_api_key)
 
-    def _geocode(self, addr: str) -> Dict[str, float]:
+    def _geocode(self, addr: str, location_hint=None) -> Dict[str, float]:
+        # Try direct geocoding first
         res = self.gmaps.geocode(addr)
+        
+        # If direct geocoding fails and we have location context, try with context
+        if not res and location_hint and location_hint.city:
+            enhanced_query = f"{addr}, {location_hint.city}"
+            if location_hint.region:
+                enhanced_query += f", {location_hint.region}"
+            if location_hint.country:
+                enhanced_query += f", {location_hint.country}"
+            
+            print(f"Retrying geocoding with context: '{enhanced_query}'")
+            res = self.gmaps.geocode(enhanced_query)
+        
         if not res:
-            raise RuntimeError(f"Geocode failed for '{addr}'")
+            raise RuntimeError(f"Geocode failed for '{addr}' even with location context")
         return res[0]["geometry"]["location"]
 
     def _estimate_calories(self, duration_s: int, mode: str, weight_kg: float) -> float:
@@ -72,7 +85,7 @@ class FitnessAgent:
 
         # 3) Base route (steps-loop or point-to-point)
         if steps_m and origin == dest:
-            loc = self._geocode(origin)
+            loc = self._geocode(origin, intent.location_hint)
             poi = self.places.search(
                 query="park|trail",
                 location=(loc["lat"], loc["lng"]),
@@ -93,8 +106,9 @@ class FitnessAgent:
                     if gsr := stop.get("gsr"):
                         g = gsr[0]
                         wp_coords.append(f"{g['latitude']},{g['longitude']}")
-            start = self._geocode(origin)
-            end   = self._geocode(dest)
+            
+            start = self._geocode(origin, intent.location_hint)
+            end   = self._geocode(dest, intent.location_hint)
             directions = self.gmaps.directions(
                 origin=(start["lat"], start["lng"]),
                 destination=(end["lat"], end["lng"]),
